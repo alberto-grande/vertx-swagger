@@ -1,0 +1,8 @@
+
+description = 'vertx-swagger-router'
+dependencies {
+    compile group: 'io.vertx', name: 'vertx-core', version:'3.2.1'
+    compile group: 'io.vertx', name: 'vertx-web', version:'3.2.1'
+    compile group: 'io.swagger', name: 'swagger-parser', version:'1.0.19'
+    testCompile group: 'io.vertx', name: 'vertx-unit', version:'3.2.1'
+}

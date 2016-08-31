@@ -1,0 +1,6 @@
+rootProject.name = 'vertx-swagger-parent'
+include ':vertx-swagger-codegen'
+include ':vertx-swagger-router'
+
+project(':vertx-swagger-codegen').projectDir = "$rootDir/modules/vertx-swagger-codegen" as File
+project(':vertx-swagger-router').projectDir = "$rootDir/modules/vertx-swagger-router" as File

@@ -3,4 +3,5 @@
 /target/
 /.settings/
 /.vertx/
+.gradle
 sample/petstore-vertx-server/.settings/org.eclipse.core.resources.prefs
