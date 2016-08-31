@@ -16,8 +16,13 @@ In your generator project, a single jar file will be produced `target/vertx-swag
 java -cp /path/to/swagger-codegen-distribution:/path/to/vertx-swagger-codegen-1.0.0-SNAPSHOT.jar io.swagger.codegen.SwaggerCodegen generate -l java-vertx -o ./test -i path/toSwagger/definition --group-id your.group.id --artifact-id my.api.vertx
 ```
 
-Congratulations, you've just generated a maven project...
+The system property `rootPackageProperty` can be used to set your project package
 
+```
+java -cp /path/to/swagger-codegen-distribution:/path/to/vertx-swagger-codegen-1.0.0-SNAPSHOT.jar io.swagger.codegen.SwaggerCodegen generate -l java-vertx -o ./test -i path/toSwagger/definition -t path/to/templates --group-id your.group.id --artifact-id my.api.vertx -DrootPackageProperty="com.elyxor.gencode"
+```
+
+Congratulations, you've just generated a maven project...
 
 ## Wait... but... it does not compile
 You're right, but don't worry.

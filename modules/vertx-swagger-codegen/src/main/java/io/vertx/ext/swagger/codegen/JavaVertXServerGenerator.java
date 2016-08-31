@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
 
@@ -20,6 +21,7 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
+
 
 public class JavaVertXServerGenerator extends JavaClientCodegen implements CodegenConfig {
 
@@ -116,12 +118,32 @@ public class JavaVertXServerGenerator extends JavaClientCodegen implements Codeg
         artifactVersion = apiVersion;
         
         
+        //Custom rootPackage
+        String rootPackageProperty = System.getProperty("rootPackageProperty");
+        if (rootPackageProperty != null) {
+           this.rootPackage = rootPackageProperty;
+        }
 
     }
 
     @Override
     public void processOpts() {
         super.processOpts();
+    
+        if (System.getProperty("projectType") == "injection") {
+            setInjectionTemplates();
+        } else if(System.getProperty("projectType") == "default") {
+            setDefaultTemplates();
+        } else {
+            setDefaultTemplates();
+        }
+    }
+
+    public void setInjectionTemplates() {
+
+    }
+
+    public void setDefaultTemplates() {
 
         apiTestTemplateFiles.clear();
 
