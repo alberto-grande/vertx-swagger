@@ -69,6 +69,12 @@ public class JavaVertXServerGenerator extends JavaClientCodegen implements Codeg
     public JavaVertXServerGenerator() {
         super();
 
+        // Custom rootPackage - default io.swagger.server.api
+        String rootPackageProperty = System.getProperty("rootPackageProperty");
+        if (rootPackageProperty != null) {
+           this.rootPackage = rootPackageProperty;
+        }
+
         // set the output folder here
         outputFolder = "generated-code/javaVertXServer";
 
@@ -116,31 +122,14 @@ public class JavaVertXServerGenerator extends JavaClientCodegen implements Codeg
         groupId = "io.swagger";
         artifactId = "swagger-java-vertx-server";
         artifactVersion = apiVersion;
-        
-        
-        //Custom rootPackage
-        String rootPackageProperty = System.getProperty("rootPackageProperty");
-        if (rootPackageProperty != null) {
-           this.rootPackage = rootPackageProperty;
-        }
 
     }
 
     @Override
     public void processOpts() {
         super.processOpts();
-    
-        if (System.getProperty("projectType") == "injection") {
-            setInjectionTemplates();
-        } else if(System.getProperty("projectType") == "default") {
-            setDefaultTemplates();
-        } else {
-            setDefaultTemplates();
-        }
-    }
 
-    public void setInjectionTemplates() {
-
+        setDefaultTemplates();
     }
 
     public void setDefaultTemplates() {
@@ -216,11 +205,11 @@ public class JavaVertXServerGenerator extends JavaClientCodegen implements Codeg
         }
         this.additionalProperties.put("serverPort", port);
 
-        if(swagger.getInfo() !=null && swagger.getInfo().getVersion() != null) 
+        if(swagger.getInfo() !=null && swagger.getInfo().getVersion() != null)
             artifactVersion = apiVersion = swagger.getInfo().getVersion();
-        else 
+        else
             artifactVersion = apiVersion;
-        
+
         String serviceIdTemp = "";
         if (swagger != null && swagger.getPaths() != null) {
             for (String pathname : swagger.getPaths().keySet()) {
