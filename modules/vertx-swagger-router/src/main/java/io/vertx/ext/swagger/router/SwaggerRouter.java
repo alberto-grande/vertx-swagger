@@ -11,6 +11,7 @@ import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
 import io.swagger.models.Swagger;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -75,10 +76,10 @@ public class SwaggerRouter {
                     Object value = PARAMETER_EXTRACTORS.get(parameter.getIn()).extract(name, parameter, context);
                     message.put(name, value);
                 });
-                eventBus.<JsonObject> send(serviceId, message, operationResponse -> {
+                eventBus.<String> send(serviceId, message, operationResponse -> {
                     if (operationResponse.succeeded()) {
                         if(operationResponse.result().body() != null)
-                            context.response().end(operationResponse.result().body().encode());
+                            context.response().end( ((Message) operationResponse.result()).body().toString());
                         else
                             context.response().end();
                     } else {
