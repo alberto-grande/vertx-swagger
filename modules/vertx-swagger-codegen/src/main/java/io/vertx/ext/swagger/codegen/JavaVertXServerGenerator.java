@@ -164,6 +164,7 @@ public class JavaVertXServerGenerator extends JavaClientCodegen implements Codeg
             model.imports.remove("ApiModel");
             model.imports.add("JsonInclude");
             model.imports.add("JsonProperty");
+            model.imports.add("JsonValue");
         }
 
         return;
