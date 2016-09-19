@@ -140,6 +140,7 @@ public class JavaVertXServerGenerator extends JavaClientCodegen implements Codeg
         importMapping.remove("ApiModel");
         importMapping.put("JsonInclude", "com.fasterxml.jackson.annotation.JsonInclude");
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
+        importMapping.put("JsonValue", "com.fasterxml.jackson.annotation.JsonValue");
 
         modelDocTemplateFiles.clear();
         apiDocTemplateFiles.clear();
