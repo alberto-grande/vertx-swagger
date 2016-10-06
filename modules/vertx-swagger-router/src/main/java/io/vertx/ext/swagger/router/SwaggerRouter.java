@@ -29,6 +29,8 @@ import io.vertx.ext.web.handler.BodyHandler;
 public class SwaggerRouter {
 
     private static Logger VERTX_LOGGER = LoggerFactory.getLogger(SwaggerRouter.class);
+    private static String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+    private static String HTTP_STATUS_MESSAGE = "HTTP_STATUS_MESSAGE";
 
     private static Pattern PATH_PARAMETERS = Pattern.compile("\\{(.*)\\}");
     private static Map<HttpMethod, RouteBuilder> ROUTE_BUILDERS = new EnumMap<HttpMethod, RouteBuilder>(HttpMethod.class) {
@@ -79,7 +81,23 @@ public class SwaggerRouter {
                 eventBus.<String> send(serviceId, message, operationResponse -> {
                     if (operationResponse.succeeded()) {
                         if(operationResponse.result().body() != null)
-                            context.response().end( ((Message) operationResponse.result()).body().toString());
+                            if( ((Message) operationResponse.result()).headers().contains(SwaggerRouter.HTTP_STATUS_CODE) ) {
+                                String httpStatus = ((Message) operationResponse.result())
+                                        .headers().get(SwaggerRouter.HTTP_STATUS_CODE);
+                                int httpStatusNumeric = Integer.valueOf(httpStatus);
+                                String httpStatusMessage = "";
+                                if(((Message) operationResponse.result())
+                                        .headers().contains(SwaggerRouter.HTTP_STATUS_MESSAGE)) {
+                                    httpStatusMessage = ((Message) operationResponse.result())
+                                            .headers().get(SwaggerRouter.HTTP_STATUS_MESSAGE);
+                                }
+                                context.response()
+                                        .setStatusCode(httpStatusNumeric)
+                                        .setStatusMessage(httpStatusMessage)
+                                        .end( ((Message) operationResponse.result()).body().toString());
+                            } else {
+                                context.response().end(((Message) operationResponse.result()).body().toString());
+                            }
                         else
                             context.response().end();
                     } else {
