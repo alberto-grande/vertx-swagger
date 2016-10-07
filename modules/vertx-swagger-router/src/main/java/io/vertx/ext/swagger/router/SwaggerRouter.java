@@ -22,6 +22,7 @@ import io.vertx.ext.swagger.router.extractors.HeaderParameterExtractor;
 import io.vertx.ext.swagger.router.extractors.ParameterExtractor;
 import io.vertx.ext.swagger.router.extractors.PathParameterExtractor;
 import io.vertx.ext.swagger.router.extractors.QueryParameterExtractor;
+import io.vertx.ext.swagger.router.headers.EventBusHeaders;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -29,8 +30,6 @@ import io.vertx.ext.web.handler.BodyHandler;
 public class SwaggerRouter {
 
     private static Logger VERTX_LOGGER = LoggerFactory.getLogger(SwaggerRouter.class);
-    private static String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
-    private static String HTTP_STATUS_MESSAGE = "HTTP_STATUS_MESSAGE";
 
     private static Pattern PATH_PARAMETERS = Pattern.compile("\\{(.*)\\}");
     private static Map<HttpMethod, RouteBuilder> ROUTE_BUILDERS = new EnumMap<HttpMethod, RouteBuilder>(HttpMethod.class) {
@@ -80,26 +79,15 @@ public class SwaggerRouter {
                 });
                 eventBus.<String> send(serviceId, message, operationResponse -> {
                     if (operationResponse.succeeded()) {
-                        if(operationResponse.result().body() != null)
-                            if( ((Message) operationResponse.result()).headers().contains(SwaggerRouter.HTTP_STATUS_CODE) ) {
-                                String httpStatus = ((Message) operationResponse.result())
-                                        .headers().get(SwaggerRouter.HTTP_STATUS_CODE);
-                                int httpStatusNumeric = Integer.valueOf(httpStatus);
-                                String httpStatusMessage = "";
-                                if(((Message) operationResponse.result())
-                                        .headers().contains(SwaggerRouter.HTTP_STATUS_MESSAGE)) {
-                                    httpStatusMessage = ((Message) operationResponse.result())
-                                            .headers().get(SwaggerRouter.HTTP_STATUS_MESSAGE);
-                                }
-                                context.response()
-                                        .setStatusCode(httpStatusNumeric)
-                                        .setStatusMessage(httpStatusMessage)
-                                        .end( ((Message) operationResponse.result()).body().toString());
+                        if(operationResponse.result().body() != null) {
+                            if ( ((Message) operationResponse.result()).headers().contains(EventBusHeaders.HTTP_STATUS_CODE) ) {
+                                customHttpResponseEnd((Message) operationResponse.result(), context.response());
                             } else {
-                                context.response().end(((Message) operationResponse.result()).body().toString());
+                                context.response().end( ((Message) operationResponse.result()).body().toString() );
                             }
-                        else
+                        } else {
                             context.response().end();
+                        }
                     } else {
                         internalServerErrorEnd(context.response());
                     }
@@ -120,6 +108,21 @@ public class SwaggerRouter {
 
     private static String computeServiceId(HttpMethod httpMethod, String pathname) {
         return httpMethod.name() + pathname.replaceAll("-", "_").replaceAll("/", "_").replaceAll("[{}]", "");
+    }
+
+    private static void customHttpResponseEnd(Message message, HttpServerResponse response) {
+        String httpStatus = message.headers().get(EventBusHeaders.HTTP_STATUS_CODE);
+        try {
+            int httpStatusInt = Integer.parseInt(httpStatus);
+            String httpStatusMessage = "Service Unavailable (" + httpStatusInt + ")";
+            if ( message.headers().contains(EventBusHeaders.HTTP_STATUS_MESSAGE) ) {
+                httpStatusMessage = message.headers().get(EventBusHeaders.HTTP_STATUS_MESSAGE);
+            }
+            response.setStatusCode(httpStatusInt).setStatusMessage(httpStatusMessage).end(message.body().toString());
+        } catch (NumberFormatException e) {
+            VERTX_LOGGER.debug("Invalid HTTP_STATUS_CODE, must be an integer", e);
+            response.end(message.body().toString());
+        }
     }
 
     private static void internalServerErrorEnd(HttpServerResponse response) {
