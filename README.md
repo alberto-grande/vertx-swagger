@@ -6,6 +6,10 @@ It contains 2 modules:
   
  
 # todo :
+
+- Clean up
+- Try to properly manage path parameters (ie. getPetById in the example fails (tries to get a JsonObject instead of a string))
+
 ## vertx-swagger-router :
  - manage the authorization part of swagger definition
  - use more data from swagger definition if possible (responses, info)
